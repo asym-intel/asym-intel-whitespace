@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The White Space — Asymmetric Intelligence</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --nb-bg:     #1a1918;
+      --nb-border: #2d2c2a;
+      --nb-text:   #a8a7a4;
+      --nb-hover:  #e0dfdc;
+      --nb-teal:   #4f98a3;
+      --nb-height: 40px;
+      --nb-font:   'Satoshi', 'Inter', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: var(--nb-font);
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NETWORK BAR ── */
+    .network-bar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      height: var(--nb-height);
+      background: var(--nb-bg);
+      border-bottom: 1px solid var(--nb-border);
+      font-family: var(--nb-font);
+      font-size: 13px;
+      letter-spacing: 0.02em;
+    }
+    .network-bar__inner {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 100%;
+    }
+    .network-bar__brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: var(--nb-hover);
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .network-bar__svg  { color: var(--nb-teal); flex-shrink: 0; }
+    .network-bar__name { color: var(--nb-hover); }
+    .network-bar__spacer { flex: 1; }
+    .network-bar__nav {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .network-bar__link {
+      color: var(--nb-text);
+      text-decoration: none;
+      transition: color 120ms ease;
+    }
+    .network-bar__link:hover { color: var(--nb-hover); }
+    .network-bar__link--active { color: var(--nb-hover); }
+
+    @media (max-width: 640px) {
+      .network-bar__nav  { display: none; }
+      .network-bar__name { display: none; }
+    }
+
+    /* ── WHITE SPACE ── */
+    .white-space {
+      flex: 1;
+      background: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="network-bar" role="banner" aria-label="Asymmetric Intelligence network">
+    <div class="network-bar__inner">
+
+      <a class="network-bar__brand" href="https://asym-intel.info" aria-label="Asymmetric Intelligence home">
+        <svg class="network-bar__svg" width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <rect x="2"  y="4"  width="10" height="2.5" rx="1.25" fill="currentcolor"/>
+          <rect x="6"  y="9"  width="12" height="2.5" rx="1.25" fill="currentcolor" opacity=".65"/>
+          <rect x="2"  y="14" width="7"  height="2.5" rx="1.25" fill="currentcolor" opacity=".35"/>
+        </svg>
+        <span class="network-bar__name">Asymmetric Intelligence</span>
+      </a>
+
+      <div class="network-bar__spacer"></div>
+
+      <nav class="network-bar__nav" aria-label="Platform sections">
+        <a class="network-bar__link" href="https://asym-intel.info/monitors/">Monitors</a>
+        <a class="network-bar__link" href="https://compossible.asym-intel.info">Compossible</a>
+        <a class="network-bar__link network-bar__link--active" href="https://whitespace.asym-intel.info">The White Space</a>
+      </nav>
+
+    </div>
+  </header>
+
+  <main class="white-space" aria-label="The White Space"></main>
+
+</body>
+</html>
