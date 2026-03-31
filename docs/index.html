@@ -42,8 +42,8 @@
       --panel-bg:   #141412;
       --panel-border: #2a2926;
       --text-primary: #e0dfdc;
-      --text-muted:   #7a7974;
-      --text-faint:   #4a4946;
+      --text-muted:   #b0afac;
+      --text-faint:   #7a7874;
       --radius: 6px;
       --ease: cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -66,7 +66,7 @@
       height: var(--nb-height);
       background: var(--nb-bg);
       border-bottom: 1px solid var(--nb-border);
-      font-size: 13px;
+      font-size: 15px;
       letter-spacing: 0.02em;
     }
     .network-bar__inner {
@@ -83,7 +83,7 @@
     .network-bar__nav { display: flex; align-items: center; gap: 1.25rem; }
     .network-bar__link {
       color: var(--nb-text); text-decoration: none;
-      transition: color 120ms ease; font-size: 13px;
+      transition: color 120ms ease; font-size: 15px;
     }
     .network-bar__link:hover, .network-bar__link--active { color: var(--nb-hover); }
     @media (max-width: 640px) {
@@ -106,7 +106,7 @@
     }
 
     .controls__label {
-      font-size: 11px;
+      font-size: 12.5px;
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -125,7 +125,7 @@
       background: #1e1d1b;
       color: var(--text-muted);
       font-family: var(--font-body);
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 500;
       letter-spacing: 0.01em;
       cursor: pointer;
@@ -169,7 +169,7 @@
       background: #1a1918;
       color: var(--text-primary);
       font-family: var(--font-body);
-      font-size: 12px;
+      font-size: 14px;
       width: 180px;
       outline: none;
       transition: border-color 150ms ease, width 200ms var(--ease);
@@ -186,7 +186,7 @@
       background: transparent;
       color: var(--text-muted);
       font-family: var(--font-body);
-      font-size: 12px;
+      font-size: 14px;
       cursor: pointer;
       transition: all 150ms ease;
     }
@@ -240,7 +240,7 @@
       gap: 5px;
       padding: 2px 8px;
       border-radius: 999px;
-      font-size: 10px;
+      font-size: 11.5px;
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -250,7 +250,7 @@
 
     .panel__title {
       font-family: var(--font-serif);
-      font-size: 18px;
+      font-size: 20.5px;
       line-height: 1.3;
       color: var(--text-primary);
       flex: 1;
@@ -272,7 +272,7 @@
     .panel__body { overflow-y: auto; flex: 1; padding: 16px 20px; }
 
     .panel__meta {
-      font-size: 11px;
+      font-size: 12.5px;
       color: var(--text-faint);
       letter-spacing: 0.04em;
       text-transform: uppercase;
@@ -280,14 +280,14 @@
     }
 
     .panel__description {
-      font-size: 14px;
+      font-size: 16px;
       line-height: 1.6;
       color: #a8a7a4;
       margin-bottom: 20px;
     }
 
     .panel__section-label {
-      font-size: 10px;
+      font-size: 11.5px;
       font-weight: 600;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -315,9 +315,9 @@
       border-radius: 50%;
       flex-shrink: 0;
     }
-    .connection-label { font-size: 12px; color: #a8a7a4; flex: 1; line-height: 1.3; }
+    .connection-label { font-size: 14px; color: #a8a7a4; flex: 1; line-height: 1.3; }
     .connection-rel {
-      font-size: 10px;
+      font-size: 11.5px;
       color: var(--text-faint);
       font-style: italic;
       flex-shrink: 0;
@@ -341,7 +341,7 @@
       border: 1px solid color-mix(in oklab, var(--node-color, #4f98a3) 40%, transparent);
       color: var(--node-color, #4f98a3);
       font-family: var(--font-body);
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 500;
       cursor: pointer;
       text-decoration: none;
@@ -361,7 +361,7 @@
       justify-content: center;
       gap: 16px;
       color: var(--text-faint);
-      font-size: 13px;
+      font-size: 15px;
       letter-spacing: 0.04em;
     }
     .loading-dots {
@@ -393,7 +393,7 @@
       z-index: 30;
     }
     .legend__title {
-      font-size: 10px;
+      font-size: 11.5px;
       font-weight: 600;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -403,7 +403,7 @@
     .legend__item {
       display: flex; align-items: center; gap: 7px;
       margin-bottom: 5px;
-      font-size: 11px;
+      font-size: 12.5px;
       color: var(--text-muted);
     }
     .legend__item:last-child { margin-bottom: 0; }
@@ -420,7 +420,7 @@
       background: #1a1918;
       border: 1px solid #2a2926;
       border-radius: var(--radius);
-      font-size: 12px;
+      font-size: 14px;
       color: var(--text-primary);
       pointer-events: none;
       white-space: nowrap;
@@ -727,17 +727,22 @@
       if (!isMonitor && !isSelected) return;
 
       const label = isMonitor ? node.label : truncate(node.label, 28);
-      const fontSize = isMonitor ? Math.max(10, 13 / globalScale) : Math.max(9, 11 / globalScale);
+      const fontSize = isMonitor ? Math.max(11.5, 14.95 / globalScale) : Math.max(10.4, 12.65 / globalScale);
       ctx.font = `${isMonitor ? '600' : '400'} ${fontSize}px Satoshi, Inter, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
 
       const color = MONITOR_COLORS[node.monitor] || '#c8c4bc';
+      const alpha = selectedNode && selectedNode.id !== node.id ? 0.35 : 1.0;
+      // Draw subtle shadow for legibility on dark background
+      ctx.shadowColor = 'rgba(0,0,0,0.85)';
+      ctx.shadowBlur = 6;
       ctx.fillStyle = selectedNode && selectedNode.id !== node.id
-        ? dimColor(color, 0.2) : color;
+        ? dimColor(color, 0.35) : color;
 
       const nodeR = isMonitor ? Math.sqrt(18) * 4 : Math.sqrt(6) * 4;
       ctx.fillText(label, node.x, node.y + nodeR + 4 / globalScale);
+      ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
     })
     .linkColor(link => {
       const relColors = {
@@ -893,7 +898,7 @@
         </div>`;
       });
       if (nodeEdges.length > 12) {
-        html += `<div style="font-size:11px;color:var(--text-faint);padding:4px 10px">+${nodeEdges.length - 12} more connections</div>`;
+        html += `<div style="font-size: 12.5px;color:var(--text-faint);padding:4px 10px">+${nodeEdges.length - 12} more connections</div>`;
       }
       html += '</div>';
       conns.innerHTML = html;
