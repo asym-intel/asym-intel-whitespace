@@ -316,6 +316,27 @@
       flex-shrink: 0;
     }
     .connection-label { font-size: 14px; color: #a8a7a4; flex: 1; line-height: 1.3; }
+    .connection-rel-wrap {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .connection-src {
+      font-size: 11px;
+      color: var(--nb-teal);
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 120ms;
+      line-height: 1;
+    }
+    .connection-src:hover { opacity: 1; }
+    .connection-date {
+      display: block;
+      font-size: 10.5px;
+      color: var(--text-faint);
+      margin-top: 1px;
+    }
     .connection-rel {
       font-size: 11.5px;
       color: var(--text-faint);
@@ -607,12 +628,19 @@
   let selectedNode = null;
 
   // ── Build edge map for panel connections ────────────────────────
-  const edgeMap = {}; // nodeId → [{target, relation, title}]
+  const edgeMap = {}; // nodeId → [{otherId, relation, title, report_url, first_flagged}]
   edges.forEach(e => {
     if (!edgeMap[e.source]) edgeMap[e.source] = [];
     if (!edgeMap[e.target]) edgeMap[e.target] = [];
-    edgeMap[e.source].push({ otherId: e.target, relation: e.relation, title: e.title });
-    edgeMap[e.target].push({ otherId: e.source, relation: e.relation, title: e.title });
+    const entry = {
+      otherId:       e.target,
+      relation:      e.relation,
+      title:         e.title,
+      report_url:    e.report_url    || null,
+      first_flagged: e.first_flagged || null,
+    };
+    edgeMap[e.source].push(entry);
+    edgeMap[e.target].push({ ...entry, otherId: e.source });
   });
 
   const nodeMap = {};
@@ -892,14 +920,18 @@
     if (nodeEdges.length > 0) {
       let html = `<div class="panel__section-label">Connections (${nodeEdges.length})</div>`;
       html += '<div class="panel__connections">';
-      nodeEdges.slice(0, 12).forEach(({ otherId, relation, title: edgeTitle }) => {
+      nodeEdges.slice(0, 12).forEach(({ otherId, relation, title: edgeTitle, report_url, first_flagged }) => {
         const other = nodeMap[otherId];
         if (!other) return;
         const otherColor = MONITOR_COLORS[other.monitor] || '#c8c4bc';
+        const dateStr = first_flagged
+          ? `<span class="connection-date">${first_flagged}</span>` : '';
+        const srcLink = report_url
+          ? `<a class="connection-src" href="${report_url}" target="_blank" rel="noopener" title="Open source report" onclick="event.stopPropagation()">↗</a>` : '';
         html += `<div class="connection-item" data-node-id="${otherId}">
           <div class="connection-dot" style="background:${otherColor}"></div>
-          <div class="connection-label">${truncate(other.label, 40)}</div>
-          <div class="connection-rel">${relation}</div>
+          <div class="connection-label">${truncate(other.label, 36)}${dateStr}</div>
+          <div class="connection-rel-wrap">${srcLink}<span class="connection-rel">${relation}</span></div>
         </div>`;
       });
       if (nodeEdges.length > 12) {
