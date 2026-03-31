@@ -1,118 +1,949 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The White Space — Asymmetric Intelligence</title>
+  <meta name="description" content="A spatial knowledge graph of connections across the Asymmetric Intelligence monitor suite and Compossible.">
+
+  <!-- Fonts -->
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
   <style>
+    /* ── Reset & Tokens ─────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
 
     :root {
-      --nb-bg:     #1a1918;
-      --nb-border: #2d2c2a;
-      --nb-text:   #a8a7a4;
-      --nb-hover:  #e0dfdc;
-      --nb-teal:   #4f98a3;
-      --nb-height: 40px;
-      --nb-font:   'Satoshi', 'Inter', sans-serif;
-    }
+      --nb-bg:      #1a1918;
+      --nb-border:  #2d2c2a;
+      --nb-text:    #a8a7a4;
+      --nb-hover:   #e0dfdc;
+      --nb-teal:    #4f98a3;
+      --nb-height:  40px;
+      --font-body:  'Satoshi', 'Inter', sans-serif;
+      --font-serif: 'Instrument Serif', Georgia, serif;
 
-    html, body {
-      height: 100%;
+      /* Graph canvas bg */
+      --canvas-bg:  #0d0d0b;
+
+      /* Monitor colours (match graph.json) */
+      --c-ai:       #4f98a3;
+      --c-conflict: #c0392b;
+      --c-demo:     #8e44ad;
+      --c-env:      #27ae60;
+      --c-esa:      #2980b9;
+      --c-fimi:     #e67e22;
+      --c-macro:    #f39c12;
+      --c-comp:     #c8c4bc;
+
+      /* UI */
+      --panel-bg:   #141412;
+      --panel-border: #2a2926;
+      --text-primary: #e0dfdc;
+      --text-muted:   #7a7974;
+      --text-faint:   #4a4946;
+      --radius: 6px;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     body {
-      font-family: var(--nb-font);
-      background: #ffffff;
+      font-family: var(--font-body);
+      background: var(--canvas-bg);
+      color: var(--text-primary);
+      height: 100dvh;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
-    /* ── NETWORK BAR ── */
+    /* ── Network Bar ─────────────────────────────────────────────── */
     .network-bar {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+      position: relative;
+      z-index: 100;
+      flex-shrink: 0;
       height: var(--nb-height);
       background: var(--nb-bg);
       border-bottom: 1px solid var(--nb-border);
-      font-family: var(--nb-font);
       font-size: 13px;
       letter-spacing: 0.02em;
     }
     .network-bar__inner {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 24px;
-      height: 100%;
+      display: flex; align-items: center; gap: 1.5rem;
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 24px; height: 100%;
     }
     .network-bar__brand {
+      display: flex; align-items: center; gap: 0.5rem;
+      text-decoration: none; color: var(--nb-hover); font-weight: 500; flex-shrink: 0;
+    }
+    .network-bar__svg { color: var(--nb-teal); flex-shrink: 0; }
+    .network-bar__spacer { flex: 1; }
+    .network-bar__nav { display: flex; align-items: center; gap: 1.25rem; }
+    .network-bar__link {
+      color: var(--nb-text); text-decoration: none;
+      transition: color 120ms ease; font-size: 13px;
+    }
+    .network-bar__link:hover, .network-bar__link--active { color: var(--nb-hover); }
+    @media (max-width: 640px) {
+      .network-bar__nav { display: none; }
+      .network-bar__brand span:last-child { display: none; }
+    }
+
+    /* ── Controls Bar ────────────────────────────────────────────── */
+    .controls {
+      position: relative;
+      z-index: 50;
+      flex-shrink: 0;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      text-decoration: none;
-      color: var(--nb-hover);
+      gap: var(--space, 8px);
+      padding: 8px 20px;
+      background: rgba(20, 19, 18, 0.95);
+      border-bottom: 1px solid #1e1d1b;
+      flex-wrap: wrap;
+    }
+
+    .controls__label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      flex-shrink: 0;
+      margin-right: 4px;
+    }
+
+    .filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: #1e1d1b;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 12px;
       font-weight: 500;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: all 150ms var(--ease);
       flex-shrink: 0;
     }
-    .network-bar__svg  { color: var(--nb-teal); flex-shrink: 0; }
-    .network-bar__name { color: var(--nb-hover); }
-    .network-bar__spacer { flex: 1; }
-    .network-bar__nav {
+    .filter-btn:hover { color: var(--text-primary); background: #2a2926; }
+    .filter-btn.active {
+      color: var(--text-primary);
+      border-color: var(--btn-color, #4f98a3);
+      background: color-mix(in oklab, var(--btn-color, #4f98a3) 12%, transparent);
+    }
+    .filter-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--btn-color, #4f98a3);
+      flex-shrink: 0;
+    }
+
+    .controls__divider {
+      width: 1px; height: 18px;
+      background: #2a2926;
+      flex-shrink: 0;
+      margin: 0 4px;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .search-wrap svg {
+      position: absolute; left: 8px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-faint);
+      pointer-events: none;
+    }
+    .search-input {
+      padding: 4px 10px 4px 28px;
+      border-radius: 999px;
+      border: 1px solid #2a2926;
+      background: #1a1918;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 12px;
+      width: 180px;
+      outline: none;
+      transition: border-color 150ms ease, width 200ms var(--ease);
+    }
+    .search-input:focus { border-color: #4f98a3; width: 220px; }
+    .search-input::placeholder { color: var(--text-faint); }
+
+    .controls__right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+    .reset-btn {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #2a2926;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 150ms ease;
+    }
+    .reset-btn:hover { color: var(--text-primary); border-color: #3a3936; }
+
+    /* ── Graph Canvas ────────────────────────────────────────────── */
+    #graph-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #graph-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Side Panel ──────────────────────────────────────────────── */
+    .panel {
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: 340px;
+      background: var(--panel-bg);
+      border-left: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 320ms var(--ease);
+      z-index: 40;
+      overflow: hidden;
+    }
+    .panel.open { transform: translateX(0); }
+
+    .panel__header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--panel-border);
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .panel__type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      border: 1px solid transparent;
+    }
+
+    .panel__title {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.3;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .panel__close {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1px solid #2a2926;
+      background: transparent;
+      color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 150ms ease;
+    }
+    .panel__close:hover { color: var(--text-primary); border-color: #3a3936; }
+
+    .panel__body { overflow-y: auto; flex: 1; padding: 16px 20px; }
+
+    .panel__meta {
+      font-size: 11px;
+      color: var(--text-faint);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .panel__description {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #a8a7a4;
+      margin-bottom: 20px;
+    }
+
+    .panel__section-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+    }
+
+    .panel__connections { margin-bottom: 20px; }
+
+    .connection-item {
       display: flex;
       align-items: center;
-      gap: 1.25rem;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      background: #1a1918;
+      border: 1px solid #222120;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all 150ms ease;
     }
-    .network-bar__link {
-      color: var(--nb-text);
+    .connection-item:hover { background: #222120; border-color: #2e2d2b; }
+    .connection-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .connection-label { font-size: 12px; color: #a8a7a4; flex: 1; line-height: 1.3; }
+    .connection-rel {
+      font-size: 10px;
+      color: var(--text-faint);
+      font-style: italic;
+      flex-shrink: 0;
+    }
+
+    .panel__footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--panel-border);
+      flex-shrink: 0;
+    }
+
+    .open-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      background: color-mix(in oklab, var(--node-color, #4f98a3) 15%, transparent);
+      border: 1px solid color-mix(in oklab, var(--node-color, #4f98a3) 40%, transparent);
+      color: var(--node-color, #4f98a3);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
       text-decoration: none;
-      transition: color 120ms ease;
+      transition: all 150ms ease;
     }
-    .network-bar__link:hover { color: var(--nb-hover); }
-    .network-bar__link--active { color: var(--nb-hover); }
-
-    @media (max-width: 640px) {
-      .network-bar__nav  { display: none; }
-      .network-bar__name { display: none; }
+    .open-btn:hover {
+      background: color-mix(in oklab, var(--node-color, #4f98a3) 25%, transparent);
     }
 
-    /* ── WHITE SPACE ── */
-    .white-space {
-      flex: 1;
-      background: #ffffff;
+    /* ── Loading State ───────────────────────────────────────────── */
+    #loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: var(--text-faint);
+      font-size: 13px;
+      letter-spacing: 0.04em;
     }
+    .loading-dots {
+      display: flex; gap: 6px;
+    }
+    .loading-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #4f98a3;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; transform: scale(0.8); }
+      50%       { opacity: 1;   transform: scale(1); }
+    }
+
+    /* ── Legend ──────────────────────────────────────────────────── */
+    .legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(20, 19, 18, 0.9);
+      border: 1px solid #2a2926;
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      backdrop-filter: blur(8px);
+      z-index: 30;
+    }
+    .legend__title {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+    }
+    .legend__item {
+      display: flex; align-items: center; gap: 7px;
+      margin-bottom: 5px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .legend__item:last-child { margin-bottom: 0; }
+    .legend__dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Tooltip ─────────────────────────────────────────────────── */
+    #tooltip {
+      position: absolute;
+      padding: 6px 10px;
+      background: #1a1918;
+      border: 1px solid #2a2926;
+      border-radius: var(--radius);
+      font-size: 12px;
+      color: var(--text-primary);
+      pointer-events: none;
+      white-space: nowrap;
+      max-width: 260px;
+      white-space: normal;
+      z-index: 60;
+      opacity: 0;
+      transition: opacity 100ms ease;
+    }
+    #tooltip.visible { opacity: 1; }
+
+    /* ── Scrollbar ───────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2926; border-radius: 2px; }
   </style>
 </head>
 <body>
 
-  <header class="network-bar" role="banner" aria-label="Asymmetric Intelligence network">
-    <div class="network-bar__inner">
+<!-- Network Bar -->
+<header class="network-bar" role="banner" aria-label="Asymmetric Intelligence network">
+  <div class="network-bar__inner">
+    <a class="network-bar__brand" href="https://asym-intel.info" aria-label="Asymmetric Intelligence home">
+      <svg class="network-bar__svg" width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <rect x="2"  y="4"  width="10" height="2.5" rx="1.25" fill="currentcolor"/>
+        <rect x="6"  y="9"  width="12" height="2.5" rx="1.25" fill="currentcolor" opacity=".65"/>
+        <rect x="2"  y="14" width="7"  height="2.5" rx="1.25" fill="currentcolor" opacity=".35"/>
+      </svg>
+      <span>Asymmetric Intelligence</span>
+    </a>
+    <div class="network-bar__spacer"></div>
+    <nav class="network-bar__nav" aria-label="Platform sections">
+      <a class="network-bar__link" href="https://asym-intel.info/monitors/">Monitors</a>
+      <a class="network-bar__link" href="https://compossible.asym-intel.info">Compossible</a>
+      <a class="network-bar__link network-bar__link--active" href="https://whitespace.asym-intel.info">The White Space</a>
+    </nav>
+  </div>
+</header>
 
-      <a class="network-bar__brand" href="https://asym-intel.info" aria-label="Asymmetric Intelligence home">
-        <svg class="network-bar__svg" width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-          <rect x="2"  y="4"  width="10" height="2.5" rx="1.25" fill="currentcolor"/>
-          <rect x="6"  y="9"  width="12" height="2.5" rx="1.25" fill="currentcolor" opacity=".65"/>
-          <rect x="2"  y="14" width="7"  height="2.5" rx="1.25" fill="currentcolor" opacity=".35"/>
-        </svg>
-        <span class="network-bar__name">Asymmetric Intelligence</span>
-      </a>
+<!-- Controls -->
+<div class="controls" id="controls" role="toolbar" aria-label="Graph filters">
+  <span class="controls__label">View</span>
 
-      <div class="network-bar__spacer"></div>
+  <button class="filter-btn active" data-filter="all" style="--btn-color:#4f98a3">
+    <span class="filter-dot"></span> All
+  </button>
 
-      <nav class="network-bar__nav" aria-label="Platform sections">
-        <a class="network-bar__link" href="https://asym-intel.info/monitors/">Monitors</a>
-        <a class="network-bar__link" href="https://compossible.asym-intel.info">Compossible</a>
-        <a class="network-bar__link network-bar__link--active" href="https://whitespace.asym-intel.info">The White Space</a>
-      </nav>
+  <div class="controls__divider"></div>
+  <span class="controls__label">Monitors</span>
 
+  <button class="filter-btn" data-filter="ai-governance" style="--btn-color:#4f98a3">
+    <span class="filter-dot"></span> AI Governance
+  </button>
+  <button class="filter-btn" data-filter="conflict-escalation" style="--btn-color:#c0392b">
+    <span class="filter-dot"></span> Conflict
+  </button>
+  <button class="filter-btn" data-filter="democratic-integrity" style="--btn-color:#8e44ad">
+    <span class="filter-dot"></span> Democracy
+  </button>
+  <button class="filter-btn" data-filter="environmental-risks" style="--btn-color:#27ae60">
+    <span class="filter-dot"></span> Environment
+  </button>
+  <button class="filter-btn" data-filter="european-strategic-autonomy" style="--btn-color:#2980b9">
+    <span class="filter-dot"></span> Europe
+  </button>
+  <button class="filter-btn" data-filter="fimi-cognitive-warfare" style="--btn-color:#e67e22">
+    <span class="filter-dot"></span> FIMI
+  </button>
+  <button class="filter-btn" data-filter="macro-monitor" style="--btn-color:#f39c12">
+    <span class="filter-dot"></span> Macro
+  </button>
+
+  <div class="controls__divider"></div>
+
+  <button class="filter-btn" data-filter="compossible" style="--btn-color:#c8c4bc">
+    <span class="filter-dot"></span> Compossible
+  </button>
+
+  <div class="controls__right">
+    <div class="search-wrap">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="search" class="search-input" id="search" placeholder="Search nodes…" autocomplete="off">
     </div>
-  </header>
+    <button class="reset-btn" id="reset-btn">Reset</button>
+  </div>
+</div>
 
-  <main class="white-space" aria-label="The White Space"></main>
+<!-- Graph -->
+<div id="graph-container" role="main" aria-label="Knowledge graph">
+  <canvas id="graph-canvas"></canvas>
+
+  <div id="loading">
+    <div class="loading-dots">
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+    </div>
+    <span>Building knowledge graph…</span>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend" role="note" aria-label="Monitor colour legend">
+    <div class="legend__title">Monitors</div>
+    <div class="legend__item"><div class="legend__dot" style="background:#4f98a3"></div>AI Governance</div>
+    <div class="legend__item"><div class="legend__dot" style="background:#c0392b"></div>Conflict & Escalation</div>
+    <div class="legend__item"><div class="legend__dot" style="background:#8e44ad"></div>Democratic Integrity</div>
+    <div class="legend__item"><div class="legend__dot" style="background:#27ae60"></div>Environmental Risks</div>
+    <div class="legend__item"><div class="legend__dot" style="background:#2980b9"></div>European Autonomy</div>
+    <div class="legend__item"><div class="legend__dot" style="background:#e67e22"></div>FIMI & Cog. Warfare</div>
+    <div class="legend__item"><div class="legend__dot" style="background:#f39c12"></div>Macro Monitor</div>
+    <div class="legend__item"><div class="legend__dot" style="background:#c8c4bc"></div>Compossible</div>
+  </div>
+
+  <!-- Side Panel -->
+  <aside class="panel" id="panel" role="complementary" aria-label="Node details">
+    <div class="panel__header">
+      <div style="flex:1">
+        <div class="panel__type-badge" id="panel-badge"></div>
+        <div class="panel__title" id="panel-title"></div>
+      </div>
+      <button class="panel__close" id="panel-close" aria-label="Close panel">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="panel__body">
+      <div class="panel__meta" id="panel-meta"></div>
+      <div class="panel__description" id="panel-desc"></div>
+      <div id="panel-connections"></div>
+    </div>
+    <div class="panel__footer">
+      <a class="open-btn" id="panel-link" href="#" target="_blank" rel="noopener" style="--node-color:#4f98a3">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        Open
+      </a>
+    </div>
+  </aside>
+
+  <!-- Tooltip -->
+  <div id="tooltip" role="tooltip"></div>
+</div>
+
+<!-- force-graph CDN -->
+<script src="https://cdn.jsdelivr.net/npm/force-graph@1.49.0/dist/force-graph.min.js"></script>
+
+<script>
+(async function () {
+  // ── Load graph data ─────────────────────────────────────────────
+  let graphData;
+  try {
+    const res = await fetch('data/graph.json');
+    graphData = await res.json();
+  } catch(e) {
+    document.getElementById('loading').innerHTML =
+      '<span style="color:#c0392b">Failed to load graph data.</span>';
+    return;
+  }
+
+  const { nodes, edges } = graphData;
+
+  // Monitor slug → color map
+  const MONITOR_COLORS = {
+    'ai-governance': '#4f98a3',
+    'conflict-escalation': '#c0392b',
+    'democratic-integrity': '#8e44ad',
+    'environmental-risks': '#27ae60',
+    'european-strategic-autonomy': '#2980b9',
+    'fimi-cognitive-warfare': '#e67e22',
+    'macro-monitor': '#f39c12',
+    'compossible': '#c8c4bc',
+  };
+
+  // ── State ────────────────────────────────────────────────────────
+  let activeFilter = 'all';
+  let searchQuery = '';
+  let selectedNode = null;
+
+  // ── Build edge map for panel connections ────────────────────────
+  const edgeMap = {}; // nodeId → [{target, relation, title}]
+  edges.forEach(e => {
+    if (!edgeMap[e.source]) edgeMap[e.source] = [];
+    if (!edgeMap[e.target]) edgeMap[e.target] = [];
+    edgeMap[e.source].push({ otherId: e.target, relation: e.relation, title: e.title });
+    edgeMap[e.target].push({ otherId: e.source, relation: e.relation, title: e.title });
+  });
+
+  const nodeMap = {};
+  nodes.forEach(n => { nodeMap[n.id] = n; });
+
+  // ── Prepare force-graph data ────────────────────────────────────
+  function buildGraphData(filter, search) {
+    let visibleIds = new Set();
+
+    if (filter === 'all') {
+      nodes.forEach(n => visibleIds.add(n.id));
+    } else if (filter === 'compossible') {
+      nodes.forEach(n => {
+        if (n.type === 'compossible') visibleIds.add(n.id);
+        if (n.type === 'monitor') visibleIds.add(n.id); // keep monitors as context
+      });
+    } else {
+      // Show the selected monitor + directly connected nodes
+      nodes.forEach(n => {
+        if (n.monitor === filter || n.id === filter) visibleIds.add(n.id);
+      });
+      // Add neighbours
+      edges.forEach(e => {
+        if (visibleIds.has(e.source)) visibleIds.add(e.target);
+        if (visibleIds.has(e.target)) visibleIds.add(e.source);
+      });
+    }
+
+    // Apply search
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      visibleIds = new Set([...visibleIds].filter(id => {
+        const n = nodeMap[id];
+        return n && (
+          n.label.toLowerCase().includes(q) ||
+          (n.description || '').toLowerCase().includes(q)
+        );
+      }));
+      // Keep monitors connected to matches
+      if (filter !== 'compossible') {
+        [...visibleIds].forEach(id => {
+          (edgeMap[id] || []).forEach(({ otherId }) => {
+            if (nodeMap[otherId]?.type === 'monitor') visibleIds.add(otherId);
+          });
+        });
+      }
+    }
+
+    const filteredNodes = nodes
+      .filter(n => visibleIds.has(n.id))
+      .map(n => ({
+        ...n,
+        dimmed: false,
+      }));
+
+    const filteredNodeIds = new Set(filteredNodes.map(n => n.id));
+    const filteredEdges = edges.filter(e =>
+      filteredNodeIds.has(e.source) && filteredNodeIds.has(e.target)
+    );
+
+    return {
+      nodes: filteredNodes,
+      links: filteredEdges.map(e => ({
+        source: e.source,
+        target: e.target,
+        relation: e.relation,
+        title: e.title,
+        curvature: 0.1,
+      }))
+    };
+  }
+
+  // ── Init graph ──────────────────────────────────────────────────
+  const container = document.getElementById('graph-container');
+  const canvas = document.getElementById('graph-canvas');
+
+  const Graph = ForceGraph()(container)
+    .graphData(buildGraphData(activeFilter, searchQuery))
+    .backgroundColor('#0d0d0b')
+    .width(container.clientWidth)
+    .height(container.clientHeight)
+    .nodeId('id')
+    .nodeLabel('')  // we use custom tooltip
+    .nodeVal(n => n.type === 'monitor' ? 18 : 6)
+    .nodeColor(n => {
+      const base = n.type === 'monitor'
+        ? MONITOR_COLORS[n.monitor] || '#4f98a3'
+        : MONITOR_COLORS['compossible'];
+      return selectedNode && selectedNode.id !== n.id ? dimColor(base, 0.25) : base;
+    })
+    .nodeCanvasObjectMode(() => 'after')
+    .nodeCanvasObject((node, ctx, globalScale) => {
+      // Draw label for monitor nodes and selected/hovered nodes
+      const isMonitor = node.type === 'monitor';
+      const isSelected = selectedNode && selectedNode.id === node.id;
+      if (!isMonitor && !isSelected) return;
+
+      const label = isMonitor ? node.label : truncate(node.label, 28);
+      const fontSize = isMonitor ? Math.max(10, 13 / globalScale) : Math.max(9, 11 / globalScale);
+      ctx.font = `${isMonitor ? '600' : '400'} ${fontSize}px Satoshi, Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+
+      const color = MONITOR_COLORS[node.monitor] || '#c8c4bc';
+      ctx.fillStyle = selectedNode && selectedNode.id !== node.id
+        ? dimColor(color, 0.2) : color;
+
+      const nodeR = isMonitor ? Math.sqrt(18) * 4 : Math.sqrt(6) * 4;
+      ctx.fillText(label, node.x, node.y + nodeR + 4 / globalScale);
+    })
+    .linkColor(link => {
+      const relColors = {
+        extends: '#4f98a3',
+        contextualises: '#3a3936',
+        correlates: '#5a5754',
+        cites: '#2d6b71',
+        contradicts: '#8e4444',
+        analyses: '#3d5a6e',
+      };
+      return relColors[link.relation] || '#3a3936';
+    })
+    .linkWidth(link => link.relation === 'extends' ? 1.5 : 0.8)
+    .linkDirectionalParticles(link => link.relation === 'extends' ? 2 : 0)
+    .linkDirectionalParticleWidth(1.5)
+    .linkDirectionalParticleColor(link => '#4f98a3')
+    .linkDirectionalParticleSpeed(0.004)
+    .linkCurvature('curvature')
+    .onNodeClick((node) => {
+      selectNode(node);
+    })
+    .onNodeHover((node) => {
+      const tooltip = document.getElementById('tooltip');
+      if (node) {
+        tooltip.textContent = node.type === 'monitor'
+          ? `${node.label} — ${node.week_label || ''}`
+          : node.label;
+        tooltip.classList.add('visible');
+        container.style.cursor = 'pointer';
+      } else {
+        tooltip.classList.remove('visible');
+        container.style.cursor = 'default';
+      }
+    })
+    .onBackgroundClick(() => {
+      closePanel();
+      selectedNode = null;
+      refreshColors();
+    })
+    .cooldownTicks(120)
+    .d3Force('charge', null)
+    .d3AlphaDecay(0.02)
+    .d3VelocityDecay(0.3);
+
+  // Custom charge force
+  Graph.d3Force('charge', Graph.d3Force('charge'));
+
+  // Move tooltip with mouse
+  container.addEventListener('mousemove', (e) => {
+    const tooltip = document.getElementById('tooltip');
+    if (tooltip.classList.contains('visible')) {
+      const rect = container.getBoundingClientRect();
+      tooltip.style.left = (e.clientX - rect.left + 14) + 'px';
+      tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
+    }
+  });
+
+  // Hide loading
+  document.getElementById('loading').style.display = 'none';
+
+  // ── Resize ──────────────────────────────────────────────────────
+  const ro = new ResizeObserver(() => {
+    Graph.width(container.clientWidth).height(container.clientHeight);
+  });
+  ro.observe(container);
+
+  // ── Helpers ─────────────────────────────────────────────────────
+  function dimColor(hex, alpha) {
+    // Convert hex to rgba with alpha
+    const r = parseInt(hex.slice(1,3), 16);
+    const g = parseInt(hex.slice(3,5), 16);
+    const b = parseInt(hex.slice(5,7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  function truncate(str, n) {
+    return str.length > n ? str.slice(0, n) + '…' : str;
+  }
+
+  function refreshColors() {
+    Graph.nodeColor(n => {
+      const base = n.type === 'monitor'
+        ? MONITOR_COLORS[n.monitor] || '#4f98a3'
+        : MONITOR_COLORS['compossible'];
+      return selectedNode && selectedNode.id !== n.id ? dimColor(base, 0.15) : base;
+    });
+  }
+
+  // ── Panel ────────────────────────────────────────────────────────
+  function selectNode(node) {
+    selectedNode = node;
+    refreshColors();
+
+    const panel = document.getElementById('panel');
+    const badge = document.getElementById('panel-badge');
+    const title = document.getElementById('panel-title');
+    const meta  = document.getElementById('panel-meta');
+    const desc  = document.getElementById('panel-desc');
+    const conns = document.getElementById('panel-connections');
+    const link  = document.getElementById('panel-link');
+
+    const color = MONITOR_COLORS[node.monitor] || '#c8c4bc';
+
+    // Badge
+    const badgeLabel = node.type === 'monitor' ? 'Monitor' : (node.post_type || 'Post');
+    badge.textContent = badgeLabel;
+    badge.style.background = dimColor(color, 0.15);
+    badge.style.borderColor = dimColor(color, 0.4);
+    badge.style.color = color;
+
+    title.textContent = node.label;
+
+    // Meta
+    const parts = [];
+    if (node.date) parts.push(node.date);
+    if (node.week_label) parts.push(node.week_label);
+    if (node.series) parts.push(`Series: ${node.series.replace(/-/g,' ')}`);
+    meta.textContent = parts.join(' · ');
+
+    // Description
+    desc.textContent = node.description || '';
+
+    // Connections
+    const nodeEdges = edgeMap[node.id] || [];
+    if (nodeEdges.length > 0) {
+      let html = `<div class="panel__section-label">Connections (${nodeEdges.length})</div>`;
+      html += '<div class="panel__connections">';
+      nodeEdges.slice(0, 12).forEach(({ otherId, relation, title: edgeTitle }) => {
+        const other = nodeMap[otherId];
+        if (!other) return;
+        const otherColor = MONITOR_COLORS[other.monitor] || '#c8c4bc';
+        html += `<div class="connection-item" data-node-id="${otherId}">
+          <div class="connection-dot" style="background:${otherColor}"></div>
+          <div class="connection-label">${truncate(other.label, 40)}</div>
+          <div class="connection-rel">${relation}</div>
+        </div>`;
+      });
+      if (nodeEdges.length > 12) {
+        html += `<div style="font-size:11px;color:var(--text-faint);padding:4px 10px">+${nodeEdges.length - 12} more connections</div>`;
+      }
+      html += '</div>';
+      conns.innerHTML = html;
+
+      // Click connection items to navigate
+      conns.querySelectorAll('.connection-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const nid = el.dataset.nodeId;
+          const n = nodeMap[nid];
+          if (n) {
+            selectNode(n);
+            Graph.centerAt(n.x, n.y, 600);
+            Graph.zoom(2, 600);
+          }
+        });
+      });
+    } else {
+      conns.innerHTML = '';
+    }
+
+    // Link
+    link.href = node.url || '#';
+    link.style.setProperty('--node-color', color);
+    const openLabel = node.type === 'monitor' ? 'Open monitor dashboard' : 'Read on Compossible';
+    link.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg> ${openLabel}`;
+
+    panel.classList.add('open');
+
+    // Zoom to node
+    Graph.centerAt(node.x, node.y, 500);
+    Graph.zoom(2.5, 500);
+  }
+
+  function closePanel() {
+    document.getElementById('panel').classList.remove('open');
+  }
+
+  document.getElementById('panel-close').addEventListener('click', () => {
+    closePanel();
+    selectedNode = null;
+    refreshColors();
+  });
+
+  // ── Filters ──────────────────────────────────────────────────────
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      selectedNode = null;
+      closePanel();
+      Graph.graphData(buildGraphData(activeFilter, searchQuery));
+      setTimeout(() => Graph.zoomToFit(400, 60), 600);
+    });
+  });
+
+  // ── Search ───────────────────────────────────────────────────────
+  let searchTimer;
+  document.getElementById('search').addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchQuery = e.target.value;
+      Graph.graphData(buildGraphData(activeFilter, searchQuery));
+      setTimeout(() => Graph.zoomToFit(400, 60), 600);
+    }, 250);
+  });
+
+  // ── Reset ────────────────────────────────────────────────────────
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    activeFilter = 'all';
+    searchQuery = '';
+    selectedNode = null;
+    document.getElementById('search').value = '';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-filter="all"]').classList.add('active');
+    closePanel();
+    Graph.graphData(buildGraphData('all', ''));
+    setTimeout(() => Graph.zoomToFit(400, 60), 800);
+    refreshColors();
+  });
+
+  // Initial zoom fit
+  setTimeout(() => Graph.zoomToFit(600, 80), 1000);
+
+})();
+</script>
 
 </body>
 </html>
