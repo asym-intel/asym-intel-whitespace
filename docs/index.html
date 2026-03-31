@@ -762,7 +762,14 @@
     .linkDirectionalParticleSpeed(0.004)
     .linkCurvature('curvature')
     .onNodeClick((node) => {
-      selectNode(node);
+      const now = Date.now();
+      if (selectedNode && selectedNode.id === node.id && (now - (window._lastNodeClick || 0)) < 350) {
+        // Double-click on same node — close panel
+        closePanel();
+      } else {
+        selectNode(node);
+      }
+      window._lastNodeClick = now;
     })
     .onNodeHover((node) => {
       const tooltip = document.getElementById('tooltip');
@@ -779,8 +786,6 @@
     })
     .onBackgroundClick(() => {
       closePanel();
-      selectedNode = null;
-      refreshColors();
     })
     .cooldownTicks(200)
     .d3AlphaDecay(0.015)
@@ -937,12 +942,12 @@
 
   function closePanel() {
     document.getElementById('panel').classList.remove('open');
+    selectedNode = null;
+    refreshColors();
   }
 
   document.getElementById('panel-close').addEventListener('click', () => {
     closePanel();
-    selectedNode = null;
-    refreshColors();
   });
 
   // ── Filters ──────────────────────────────────────────────────────
