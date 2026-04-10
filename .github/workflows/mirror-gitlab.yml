@@ -20,4 +20,5 @@ jobs:
           GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
         run: |
           git remote add gitlab "https://oauth2:${GITLAB_PAT}@gitlab.com/asym-intel/asym-intel-whitespace.git"
-          git push gitlab --mirror --force
+          git push gitlab --all --force
+          git push gitlab --tags --force
