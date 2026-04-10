@@ -1,0 +1,23 @@
+name: Mirror to GitLab
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["**"]
+  delete:
+
+jobs:
+  mirror:
+    name: Push mirror to GitLab
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to GitLab
+        env:
+          GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
+        run: |
+          git remote add gitlab "https://oauth2:${GITLAB_PAT}@gitlab.com/asym-intel/asym-intel-whitespace.git"
+          git push gitlab --mirror --force
