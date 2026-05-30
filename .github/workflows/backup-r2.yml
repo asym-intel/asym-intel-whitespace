@@ -1,0 +1,87 @@
+name: Backup to R2
+
+# Cold object snapshot of the full repo history to the Cloudflare R2 bucket
+# asym-intel-repo-backups (second copy alongside the GitLab hot-standby mirror).
+# Auth: PPLX_COMPUTER_ASYM_ENGINE token (R2:Edit) via CLOUDFLARE_API_TOKEN —
+# wrangler data-plane, no S3 access key required. See arti-state secrets register.
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["**"]
+  schedule:
+    # Weekly safety net so quiet repos still get a fresh snapshot (Sun 04:17 UTC)
+    - cron: "17 4 * * 0"
+  workflow_dispatch: {}
+
+concurrency:
+  group: backup-r2-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  bundle:
+    name: Bundle and upload to R2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Guard — skip cleanly if R2 token not present
+        id: guard
+        env:
+          CF_TOKEN: ${{ secrets.PPLX_COMPUTER_ASYM_ENGINE }}
+        run: |
+          if [ -z "$CF_TOKEN" ]; then
+            echo "PPLX_COMPUTER_ASYM_ENGINE not set on this repo — skipping R2 backup."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout full history
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create git bundle (all refs)
+        if: steps.guard.outputs.run == 'true'
+        id: bundle
+        run: |
+          set -euo pipefail
+          REPO="${GITHUB_REPOSITORY##*/}"
+          DATE="$(date -u +%Y-%m-%d)"
+          STAMP="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
+          SHORT="$(git rev-parse --short HEAD)"
+          FILE="/tmp/${REPO}-${STAMP}-${SHORT}.bundle"
+          git bundle create "$FILE" --all
+          # verify the bundle is complete and self-consistent before upload
+          git bundle verify "$FILE"
+          echo "repo=$REPO"   >> "$GITHUB_OUTPUT"
+          echo "date=$DATE"   >> "$GITHUB_OUTPUT"
+          echo "stamp=$STAMP" >> "$GITHUB_OUTPUT"
+          echo "short=$SHORT" >> "$GITHUB_OUTPUT"
+          echo "file=$FILE"   >> "$GITHUB_OUTPUT"
+          ls -lh "$FILE"
+
+      - name: Upload bundle to R2
+        if: steps.guard.outputs.run == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.PPLX_COMPUTER_ASYM_ENGINE }}
+          CLOUDFLARE_ACCOUNT_ID: d5ccaabd2ba0bc8fe65d44a98e43a8f8
+        run: |
+          set -euo pipefail
+          BUCKET="asym-intel-repo-backups"
+          REPO="${{ steps.bundle.outputs.repo }}"
+          DATE="${{ steps.bundle.outputs.date }}"
+          STAMP="${{ steps.bundle.outputs.stamp }}"
+          SHORT="${{ steps.bundle.outputs.short }}"
+          FILE="${{ steps.bundle.outputs.file }}"
+          # Dated, immutable key per run …
+          KEY_DATED="${REPO}/${DATE}/${STAMP}-${SHORT}.bundle"
+          # … plus a rolling "latest" pointer for one-step restore.
+          KEY_LATEST="${REPO}/latest.bundle"
+          echo "Uploading $FILE -> $BUCKET/$KEY_DATED"
+          npx --yes wrangler@3 r2 object put "${BUCKET}/${KEY_DATED}" --file="$FILE" \
+            --content-type=application/x-git-bundle
+          echo "Updating latest pointer -> $BUCKET/$KEY_LATEST"
+          npx --yes wrangler@3 r2 object put "${BUCKET}/${KEY_LATEST}" --file="$FILE" \
+            --content-type=application/x-git-bundle
+          echo "R2 backup complete: ${KEY_DATED}"
