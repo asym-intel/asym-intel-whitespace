@@ -52,11 +52,11 @@ jobs:
           git remote add gitlab "https://oauth2:${GITLAB_PAT}@gitlab.com/${GITLAB_GROUP}/${REPO}.git"
 
           # Preflight: confirm the destination project exists and its repo backend
-          # is initialized. A failed-import project returns 404 here even though the
-          # project record exists — surface a clear, actionable error instead of a
-          # cryptic "repository does not exist yet".
+          # is reachable. Uses Bearer auth to match the oauth2 push token. A failed-
+          # import or missing project returns 404/401 here — surface a clear,
+          # actionable error instead of a cryptic "repository does not exist yet".
           HTTP=$(curl -sS -o /dev/null -w '%{http_code}' \
-            --header "PRIVATE-TOKEN: ${GITLAB_PAT}" \
+            --header "Authorization: Bearer ${GITLAB_PAT}" \
             "https://gitlab.com/api/v4/projects/${GITLAB_GROUP}%2F${REPO}")
           if [ "$HTTP" != "200" ]; then
             echo "::error::GitLab project ${GITLAB_GROUP}/${REPO} not reachable (HTTP ${HTTP}). Create it or check GITLAB_PAT scope."
